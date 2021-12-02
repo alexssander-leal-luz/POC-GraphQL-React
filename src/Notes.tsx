@@ -1,17 +1,17 @@
+import { gql, useMutation, useQuery } from "@apollo/client";
 import { useMemo, useState } from "react";
 import { Button, Columns, Form, Heading } from "react-bulma-components";
-import { gql, useMutation, useQuery } from "@apollo/client";
 
-const NOTES_QUERY = gql`
+const QUERY_NOTES = gql`
   query GET_NOTES {
-    notesFromEF {
+    notes {
       id
       message
     }
   }
 `;
 
-const NOTES_MUTATION = gql`
+const QUERY_MUTATION = gql`
   mutation CREATE_NOTE($message: String!) {
     createNote(message: $message) {
       id
@@ -20,35 +20,43 @@ const NOTES_MUTATION = gql`
   }
 `;
 
+/** Get notes from the database
+ * @param data 
+ * @returns 
+ */
 function mapToDataNotes(data: any): Array<any> {
-  console.log(data);
+
   if (data && Array.isArray(data.notesFromEF)) {
     return data.notesFromEF;
   }
+  
   return [];
 }
 
 export default function Notes() {
-  const [note, setNote] = useState<string>("");
-  const { loading, data, refetch } = useQuery(NOTES_QUERY);
-  const [createNote, {loading: loadingAdd }] = useMutation(NOTES_MUTATION);
 
+  const [note, setNote] = useState<string>("");
+  const { loading, data, refetch } = useQuery(QUERY_NOTES);
+  const [createNote, {loading: loadingAdd }] = useMutation(QUERY_MUTATION);
+  const getDataList = useMemo(() => mapToDataNotes(data), [data]);
+
+  /** Create a note
+   */
   const addNote = async () => {
+
     if (!!note) {
-      console.log("OK");
+
       await createNote({
         variables: {
           message: note
         }
       });
+
       setNote("");
       await refetch();
-    } else {
-      console.log("ERROR");
-    }
-  };
 
-  const getDataList = useMemo(() => mapToDataNotes(data), [data]);
+    } else console.log("ERROR");
+  };
 
   return (
     <>
@@ -76,9 +84,7 @@ export default function Notes() {
               color="dark"
               fullwidth
               loading={loading || loadingAdd}
-              onClick={async () => {
-                await refetch();
-              }}
+              onClick={async () => { await refetch(); }}
             >
               Refresh Data
             </Button>
@@ -86,11 +92,11 @@ export default function Notes() {
         </Columns.Column>
         <Columns.Column>
           <Heading>Note List</Heading>
-          <p className="content">
+          <div className="content">
             <ul>
               {getDataList.map((note) => <li key={note.id}>{note.message}</li>)}
             </ul>
-          </p>
+          </div>
         </Columns.Column>
       </Columns>
     </>

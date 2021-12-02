@@ -21,7 +21,7 @@ export default function AppHeader() {
           <Navbar.Item href="#">About</Navbar.Item>
         </Navbar.Container>
         <Navbar.Container align="right">
-          <Navbar.Item href="https://github.com/bervproject/react-graphql-client">
+          <Navbar.Item href="https://github.com/alexssander-leal-luz/POC-GraphQL-React.git">
             <Button color="dark">
               Github
             </Button>
